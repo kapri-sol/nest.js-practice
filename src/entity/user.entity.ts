@@ -4,14 +4,20 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  Generated,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { primaryTransformer } from './common';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
+  @Generated('increment')
+  @PrimaryColumn({
+    type: 'bigint',
+    transformer: primaryTransformer,
+  })
   userUid: bigint;
 
   @Column({
@@ -41,7 +47,7 @@ export class User {
   @BeforeUpdate()
   async hashPassword() {
     if (this.password) {
-      this.password = await bcrypt.hash(this.password, process.env.SALT_OR_ROUNT);
+      this.password = await bcrypt.hash(this.password, +process.env.SALT_OR_ROUNT);
     }
   }
 
